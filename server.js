@@ -8,6 +8,7 @@ const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GithubStrategy = require('passport-github').Strategy;
 
 const users = require('./lib/data/users');
 
@@ -40,6 +41,13 @@ passport.use(new GoogleStrategy({
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     scope: 'profile',
     callbackURL: `http://localhost:${port}/callback/google`
+  },
+  (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
+
+passport.use(new GithubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: `http://localhost:${port}/callback/github`
   },
   (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
 
