@@ -1,0 +1,25 @@
+html
+  head
+    title Create a new account
+body
+  form(method='post')
+    div
+      label Username:
+      input(type='text' name='username')
+    div
+      label Password:
+      input(type='password' name='password')
+    div
+      label Confirm Password:
+      input(type='password' name='confirm_password')
+    div
+      label Email:
+      input(type='text' name='email')
+    div
+      label Full name:
+      input(type='text' name='name')
+    div
+      input(type='submit' value='Create')
+  ul(style='color:red')
+    each message in (messages || [])
+      li= message

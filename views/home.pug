@@ -1,0 +1,17 @@
+html
+  head
+    title= 'Welcome!'
+body
+  div
+    if !user
+      p Welcome!
+      br
+      div
+        a(href='/login') Login
+      div
+        a(href='/register') Create a new account
+    else
+      p Welcome #{user.username}
+      br
+      div
+        a(href='/logout') Logout
