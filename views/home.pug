@@ -11,7 +11,7 @@ body
       div
         a(href='/register') Create a new account
     else
-      p Welcome #{user.username}
+      p Welcome #{user.name || user.username}
       br
       div
         a(href='/logout') Logout

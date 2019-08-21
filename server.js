@@ -7,13 +7,22 @@ const session = require('express-session');
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 const users = require('./lib/data/users');
 
+const port = 3000;
 
 const app = express();
 
-app.use(cookie());
+const externalUserMapping = (profile, done) =>
+  users.loadOrCreate(`${profile.provider}|${profile.id}`, {
+    ...profile,
+    name: profile.displayName,
+    email: profile.emails && profile.emails.shift()
+  }).then(user => done(null, user))
+    .catch(done);
+
 app.use(body.urlencoded({ extended: true }));
 app.use(session({ secret: process.env.COOKIE_SECRET, resave: true }));
 app.set('view engine', 'pug');
@@ -26,18 +35,44 @@ passport.use(new LocalStrategy((username, password, done) =>
     .catch(err => done(null, false))
 ));
 
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    scope: 'profile',
+    callbackURL: `http://localhost:${port}/callback/google`
+  },
+  (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
+
 passport.serializeUser((user, done) => done(null, user.username))
 
 passport.deserializeUser((id, done) =>
   users.load(id)
     .then(user => done(null, user))
-    .catch(err => done(err))
+    .catch(done)
 )
 
-const port = 3000;
 
 app.get('/', (req, res) => res.render('home', { user: req.user}));
-app.get('/login', (req, res) => res.render('login'));
+app.get('/login', (req, res) =>
+  res.render(
+    'login',
+    {
+      strategies: Object.keys(passport._strategies).map(s => passport._strategies[s].name).filter(s => s !=='local' && s!== 'session') }));
+app.get('/login/:strategy', (req, res, next) =>
+  passport.authenticate(
+    req.params.strategy,
+    {
+      successRedirect: '/',
+      failureRedirect: '/login',
+    })(req, res, next));
+
+app.use('/callback/:strategy', (req, res, next) =>
+  passport.authenticate(
+    req.params.strategy,
+    {
+      successRedirect: '/',
+      failureRedirect: '/login',
+    })(req, res, next));
 
 app.post('/login', passport.authenticate(
   'local',
