@@ -15,10 +15,12 @@
     "express-session": "^1.16.2",
     "lodash": "^4.17.15",
     "mongodb": "^3.3.0",
+    "oauth2orize": "^1.11.0",
     "passport": "^0.4.0",
     "passport-github": "^1.1.0",
     "passport-google-oauth": "^2.0.0",
     "passport-local": "^1.0.0",
+    "passport-oauth2-client-password": "^0.1.2",
     "pug": "^2.0.4"
   }
 }

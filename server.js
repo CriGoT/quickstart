@@ -10,6 +10,7 @@ const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GithubStrategy = require('passport-github').Strategy;
 
+const oauthServer = require('./lib/authorize');
 const users = require('./lib/data/users');
 
 const port = 3000;
@@ -24,6 +25,7 @@ const externalUserMapping = (profile, done) =>
   }).then(user => done(null, user))
     .catch(done);
 
+app.use(body.json());
 app.use(body.urlencoded({ extended: true }));
 app.use(session({ secret: process.env.COOKIE_SECRET, resave: true }));
 app.set('view engine', 'pug');
@@ -65,7 +67,8 @@ app.get('/login', (req, res) =>
   res.render(
     'login',
     {
-      strategies: Object.keys(passport._strategies).map(s => passport._strategies[s].name).filter(s => s !=='local' && s!== 'session') }));
+      strategies: ['google', 'github']
+    }));
 app.get('/login/:strategy', (req, res, next) =>
   passport.authenticate(
     req.params.strategy,
@@ -78,14 +81,14 @@ app.use('/callback/:strategy', (req, res, next) =>
   passport.authenticate(
     req.params.strategy,
     {
-      successRedirect: '/',
+      successReturnToOrRedirect: '/',
       failureRedirect: '/login',
     })(req, res, next));
 
 app.post('/login', passport.authenticate(
   'local',
   {
-    successRedirect: '/',
+    successReturnToOrRedirect: '/',
     failureRedirect: '/login',
     failureFlash: true
   }));
@@ -115,5 +118,7 @@ app.get('/logout', (req, res) => {
   req.logout();
   res.redirect('/');
 });
+
+app.use('/oauth', oauthServer);
 
 app.listen(port, () => console.log(`App listening on port ${port}!`));

@@ -198,7 +198,7 @@ core-js@^2.4.0:
   resolved "https://a0us.jfrog.io/a0us/api/npm/npm/core-js/-/core-js-2.6.9.tgz#6b4b214620c834152e179323727fc19741b084f2"
   integrity sha1-a0shRiDINBUuF5Mjcn/Bl0GwhPI=
 
-debug@2.6.9:
+debug@2.6.9, debug@2.x.x:
   version "2.6.9"
   resolved "https://a0us.jfrog.io/a0us/api/npm/npm/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
   integrity sha1-XRKFFd8TT/Mn6QpMk/Tgd6U2NB8=
@@ -500,6 +500,15 @@ negotiator@0.6.2:
   resolved "https://a0us.jfrog.io/a0us/api/npm/npm/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha1-/qz3zPUlp3rpY0Q2pkiD/+yjRvs=
 
+oauth2orize@^1.11.0:
+  version "1.11.0"
+  resolved "https://a0us.jfrog.io/a0us/api/npm/npm/oauth2orize/-/oauth2orize-1.11.0.tgz#793cef251d45ebdeac32ae40a8b6814faab1d483"
+  integrity sha1-eTzvJR1F696sMq5AqLaBT6qx1IM=
+  dependencies:
+    debug "2.x.x"
+    uid2 "0.0.x"
+    utils-merge "1.x.x"
+
 oauth@0.9.x:
   version "0.9.15"
   resolved "https://a0us.jfrog.io/a0us/api/npm/npm/oauth/-/oauth-0.9.15.tgz#bd1fefaf686c96b75475aed5196412ff60cfb9c1"
@@ -571,6 +580,13 @@ passport-oauth1@1.x.x:
     oauth "0.9.x"
     passport-strategy "1.x.x"
     utils-merge "1.x.x"
+
+passport-oauth2-client-password@^0.1.2:
+  version "0.1.2"
+  resolved "https://a0us.jfrog.io/a0us/api/npm/npm/passport-oauth2-client-password/-/passport-oauth2-client-password-0.1.2.tgz#4f378b678b92d16dbbd233a6c706520093e561ba"
+  integrity sha1-TzeLZ4uS0W270jOmxwZSAJPlYbo=
+  dependencies:
+    passport-strategy "1.x.x"
 
 passport-oauth2@1.x.x:
   version "1.5.0"
