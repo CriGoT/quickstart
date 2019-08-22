@@ -1,0 +1,14 @@
+html
+  head
+    title Authorize access
+body
+  h3 Consent form
+  p Application #{client.name} is requesting access to the following information
+  ul
+    each scope in scopes
+      li #{scope}
+  form(method='post' action='consent')
+    div
+      input(type='hidden' name='transaction_id' value=tid)
+      input(type='submit' name='allow' value='Allow')
+      input(type='submit' name='cancel' value='No way!')
