@@ -12,7 +12,7 @@ const GithubStrategy = require('passport-github').Strategy;
 
 const oauthServer = require('./lib/authorize');
 const users = require('./lib/data/users');
-
+const flowManager = require('./lib/flows');
 const port = 3000;
 
 const app = express();
@@ -42,14 +42,12 @@ passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     scope: 'profile',
-    callbackURL: `http://localhost:${port}/callback/google`
   },
   (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
 
 passport.use(new GithubStrategy({
     clientID: process.env.GITHUB_CLIENT_ID,
     clientSecret: process.env.GITHUB_CLIENT_SECRET,
-    callbackURL: `http://localhost:${port}/callback/github`
   },
   (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
 
@@ -70,20 +68,15 @@ app.get('/login', (req, res) =>
       strategies: ['google', 'github']
     }));
 app.get('/login/:strategy', (req, res, next) =>
-  passport.authenticate(
-    req.params.strategy,
-    {
-      successRedirect: '/',
-      failureRedirect: '/login',
-    })(req, res, next));
+  flowManager.goto(
+    'federated',
+    { strategy: req.params.strategy },
+    req,
+    res,
+    next
+  ));
 
-app.use('/callback/:strategy', (req, res, next) =>
-  passport.authenticate(
-    req.params.strategy,
-    {
-      successReturnToOrRedirect: '/',
-      failureRedirect: '/login',
-    })(req, res, next));
+app.use('/callback/:strategy', flowManager.complete());
 
 app.post('/login', passport.authenticate(
   'local',
