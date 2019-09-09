@@ -16,6 +16,7 @@ const flowManager = require('./lib/flows');
 const port = 3000;
 
 const app = express();
+const strategies = [];
 
 const externalUserMapping = (profile, done) =>
   users.loadOrCreate(`${profile.provider}|${profile.id}`, {
@@ -38,18 +39,25 @@ passport.use(new LocalStrategy((username, password, done) =>
     .catch(err => done(null, false))
 ));
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    scope: 'profile',
-  },
-  (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
 
-passport.use(new GithubStrategy({
-    clientID: process.env.GITHUB_CLIENT_ID,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET,
-  },
-  (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  strategies.push('google');
+  passport.use(new GoogleStrategy({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      scope: 'profile',
+    },
+    (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
+}
+
+if (process.env.GITHUB_CLIENT_SECRET && process.env.GITHUB_CLIENT_SECRET) {
+  strategies.push('github');
+  passport.use(new GithubStrategy({
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    },
+    (accessToken, refreshToken, profile, cb) => externalUserMapping(profile, cb)));
+}
 
 passport.serializeUser((user, done) => done(null, user.username))
 
@@ -61,12 +69,8 @@ passport.deserializeUser((id, done) =>
 
 
 app.get('/', (req, res) => res.render('home', { user: req.user}));
-app.get('/login', (req, res) =>
-  res.render(
-    'login',
-    {
-      strategies: ['google', 'github']
-    }));
+app.get('/login', (req, res) => res.render('login', { strategies }));
+
 app.get('/login/:strategy', (req, res, next) =>
   flowManager.goto(
     'federated',
